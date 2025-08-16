@@ -1,0 +1,55 @@
+version: '3.8'
+
+services:
+  # Aplicación principal de cámaras RTSP
+  vision-app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: vision-cameras
+    ports:
+      - "5000:5000"
+    volumes:
+      - ./captures:/app/captures
+      - ./logs:/app/logs
+      - ./config:/app/config
+      - ./static:/app/static
+      - ./templates:/app/templates
+    environment:
+      - FLASK_ENV=production
+      - PYTHONUNBUFFERED=1
+      - PYTHONDONTWRITEBYTECODE=1
+    restart: unless-stopped
+    networks:
+      - vision-network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:5000/api/status"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+  # Nginx como proxy reverso (opcional)
+  nginx:
+    image: nginx:alpine
+    container_name: vision-nginx
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./nginx/ssl:/etc/nginx/ssl:ro
+      - ./static:/app/static:ro
+    depends_on:
+      - vision-app
+    restart: unless-stopped
+    networks:
+      - vision-network
+
+volumes:
+  captures:
+  logs:
+
+networks:
+  vision-network:
+    driver: bridge

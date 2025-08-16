@@ -1,0 +1,60 @@
+# Archivos de Python
+__pycache__
+*.pyc
+*.pyo
+*.pyd
+.Python
+env
+pip-log.txt
+pip-delete-this-directory.txt
+.tox
+.coverage
+.coverage.*
+.cache
+nosetests.xml
+coverage.xml
+*.cover
+*.log
+
+# Entornos virtuales
+.env
+.venv
+venv/
+ENV/
+env/
+
+# IDEs y editores
+.git
+.gitignore
+.mypy_cache
+.pytest_cache
+.hypothesis
+.DS_Store
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+
+# Archivos temporales
+*.tmp
+*.temp
+temp/
+tmp/
+
+# Logs y capturas (se montan como volúmenes)
+logs/*
+captures/*
+
+# Archivos de desarrollo
+web.bat
+*.bat
+*.sh
+
+# Documentación
+README.md
+*.md
+
+# Archivos de configuración local
+.env.local
+.env.development
