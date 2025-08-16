@@ -4,7 +4,7 @@ setlocal enabledelayedexpansion
 REM Configuración
 set "BASE_IMAGE=darklordcoder/pythonopencv"
 set "APP_IMAGE=darklordcoder/vision-cameras"
-set "BASE_DOCKERFILE=Dockerfile.base"
+set "BASE_DOCKERFILE=Dockerfile.pythonopencv"
 set "APP_DOCKERFILE=Dockerfile"
 
 :menu

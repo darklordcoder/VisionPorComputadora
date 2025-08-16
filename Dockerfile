@@ -1,6 +1,12 @@
 # Dockerfile para aplicación de cámaras RTSP
 FROM darklordcoder/pythonopencv:latest
 
+# Crear directorio de trabajo
+WORKDIR /app
+
+# Exponer puerto por defecto
+EXPOSE 5000
+
 # Copiar requirements e instalar dependencias Python adicionales
 COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt

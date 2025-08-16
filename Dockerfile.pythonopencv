@@ -1,5 +1,5 @@
 # Dockerfile base para OpenCV - Imagen: darklordcoder/pythonopencv
-FROM python:3.11-slim-bullseye
+FROM python:slim-bullseye
 
 # Instalar solo dependencias esenciales para OpenCV
 RUN apt-get update && apt-get install -y \
