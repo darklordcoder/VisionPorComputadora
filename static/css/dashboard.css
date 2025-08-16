@@ -1,0 +1,128 @@
+/* Estilos del Dashboard de Cámaras RTSP */
+
+/* Estilos para streams de cámaras */
+.camera-stream {
+    aspect-ratio: 16/9;
+    object-fit: cover;
+}
+
+/* Estados de las cámaras */
+.status-online { 
+    @apply bg-green-100 text-green-800 border-green-200; 
+}
+
+.status-offline { 
+    @apply bg-gray-100 text-gray-800 border-gray-200; 
+}
+
+.status-error { 
+    @apply bg-red-100 text-red-800 border-red-200; 
+}
+
+.status-streaming { 
+    @apply bg-blue-100 text-blue-800 border-blue-200; 
+}
+
+/* Animaciones y transiciones */
+.transition-colors {
+    transition: all 0.2s ease-in-out;
+}
+
+/* Hover effects para botones */
+button:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+/* Estilos para notificaciones */
+.notification {
+    animation: slideIn 0.3s ease-out;
+}
+
+@keyframes slideIn {
+    from {
+        transform: translateX(100%);
+        opacity: 0;
+    }
+    to {
+        transform: translateX(0);
+        opacity: 1;
+    }
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+    .container {
+        padding-left: 1rem;
+        padding-right: 1rem;
+    }
+    
+    .grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .flex-wrap {
+        flex-direction: column;
+        align-items: center;
+    }
+    
+    .flex-wrap > * {
+        margin-bottom: 0.5rem;
+    }
+}
+
+/* Estilos para el gradiente de fondo */
+.bg-gradient-to-br {
+    background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+}
+
+/* Estilos para las tarjetas de cámaras */
+.camera-card {
+    transition: all 0.3s ease;
+}
+
+.camera-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+}
+
+/* Estilos para los botones de control */
+.control-button {
+    transition: all 0.2s ease;
+}
+
+.control-button:active {
+    transform: scale(0.95);
+}
+
+/* Estilos para el header */
+.dashboard-header h1 {
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+/* Estilos para el panel de control */
+.control-panel {
+    backdrop-filter: blur(10px);
+    background: rgba(255, 255, 255, 0.9);
+}
+
+/* Estilos para los streams de video */
+.video-container {
+    position: relative;
+    overflow: hidden;
+    border-radius: 0.5rem;
+}
+
+.video-container img {
+    transition: transform 0.3s ease;
+}
+
+.video-container:hover img {
+    transform: scale(1.02);
+}
+
+/* Estilos para el footer */
+.dashboard-footer {
+    border-top: 1px solid #e2e8f0;
+    background: rgba(255, 255, 255, 0.8);
+}

@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard Cámaras RTSP</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        'camera': {
+                            50: '#f0f9ff',
+                            500: '#3b82f6',
+                            600: '#2563eb',
+                            700: '#1d4ed8'
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/dashboard.css') }}">
+</head>
+<body class="bg-gradient-to-br from-slate-50 to-slate-100 min-h-screen">
+    <!-- Botón flotante Capturar Todas -->
+    <div class="fixed top-4 right-4 z-50">
+        <button onclick="captureAll()" class="inline-flex items-center px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg transition-colors duration-200 font-medium shadow-lg">
+            <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"></path>
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z"></path>
+            </svg>
+            Capturar Todas
+        </button>
+    </div>
+
+    <!-- Modal de cámara expandida -->
+    <div id="cameraModal" class="fixed inset-0 bg-black bg-opacity-75 z-40 hidden flex items-center justify-center p-4">
+        <div class="bg-white rounded-xl shadow-2xl max-w-6xl w-full max-h-[90vh] overflow-hidden">
+            <!-- Header del modal -->
+            <div class="p-4 border-b border-slate-200 bg-gradient-to-r from-slate-50 to-white flex items-center justify-between">
+                <h3 id="modalCameraName" class="text-xl font-semibold text-slate-800"></h3>
+                <button onclick="closeCameraModal()" class="p-2 bg-slate-200 hover:bg-slate-300 text-slate-700 rounded-lg transition-colors duration-200">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                    </svg>
+                </button>
+            </div>
+            
+            <!-- Stream expandido -->
+            <div class="relative bg-black">
+                <img id="modalCameraStream" class="w-full h-auto" src="" alt="Stream expandido">
+            </div>
+            
+            <!-- Botones de control del modal -->
+            <div class="p-4 bg-slate-50 flex items-center justify-center gap-4">
+                <button id="modalCaptureBtn" onclick="captureCameraFromModal()" class="inline-flex items-center px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg transition-colors duration-200">
+                    <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"></path>
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                    </svg>
+                    Capturar
+                </button>
+                
+                <button id="modalToggleBtn" onclick="toggleStreamFromModal()" class="inline-flex items-center px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors duration-200">
+                    <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.828 14.828a4 4 0 01-5.656 0M9 10h1m4 0h1m-6 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                    </svg>
+                    <span id="modalToggleText">Iniciar Stream</span>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <div class="container mx-auto px-4 py-4 max-w-7xl">
+        <!-- Header -->
+        <div class="text-center mb-6">
+            <h1 class="text-3xl font-bold text-slate-800 mb-2">🎥 Dashboard Cámaras RTSP</h1>
+            <p class="text-slate-600">Sistema de Monitoreo y Control en Tiempo Real</p>
+        </div>
+        
+        <!-- Cámaras Grid -->
+        <div class="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-4">
+            {% for camera_id, camera in cameras.items() %}
+            <div class="bg-white rounded-lg shadow-md border border-slate-200 overflow-hidden">
+                <!-- Header de la cámara -->
+                <div class="p-3 border-b border-slate-200 bg-gradient-to-r from-slate-50 to-white">
+                    <div class="flex items-center justify-between">
+                        <h3 class="text-base font-semibold text-slate-800">{{ camera.name }}</h3>
+                        <div class="flex items-center gap-2">
+                            <!-- Icono de estado de conexión -->
+                            <div class="flex items-center gap-1" title="{{ camera.status.upper() }}">
+                                {% if camera.status == 'online' %}
+                                <div class="w-2 h-2 bg-green-500 rounded-full"></div>
+                                {% else %}
+                                <div class="w-2 h-2 bg-red-500 rounded-full"></div>
+                                {% endif %}
+                            </div>
+                            
+                            <!-- Icono de streaming -->
+                            {% if camera.stream_active %}
+                            <div class="flex items-center gap-1" title="STREAMING">
+                                <svg class="w-4 h-4 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"></path>
+                                </svg>
+                            </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Stream de la cámara -->
+                <div class="relative bg-black cursor-pointer" ondblclick="expandCamera('{{ camera_id }}', '{{ camera.name }}', '{{ camera.stream_active }}')">
+                    {% if camera.stream_active %}
+                    <img id="stream-{{ camera_id }}" class="w-full camera-stream" src="/stream/{{ camera_id }}" alt="Stream {{ camera.name }}">
+                    {% else %}
+                    <div class="w-full camera-stream bg-slate-800 flex items-center justify-center">
+                        <div class="text-center text-slate-400">
+                            <svg class="w-12 h-12 mx-auto mb-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"></path>
+                            </svg>
+                            <p class="text-xs">Stream no activo</p>
+                        </div>
+                    </div>
+                    {% endif %}
+                    <!-- Overlay indicador de doble clic -->
+                    <div class="absolute inset-0 bg-black bg-opacity-0 hover:bg-opacity-10 transition-all duration-200 flex items-center justify-center">
+                        <div class="text-white opacity-0 hover:opacity-100 transition-opacity duration-200 text-center">
+                            <svg class="w-8 h-8 mx-auto mb-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0zM10 7v3m0 0v3m0-3h3m-3 0H7"></path>
+                            </svg>
+                            <p class="text-xs">Doble clic para expandir</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Botones de control e información -->
+                <div class="p-3 bg-slate-50">
+                    <div class="flex items-center justify-between">
+                        <!-- Botones de control del lado izquierdo -->
+                        <div class="flex gap-2">
+                            <button onclick="captureCamera('{{ camera_id }}')" class="p-2 bg-green-600 hover:bg-green-700 text-white rounded-lg transition-colors duration-200" title="Capturar imagen">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"></path>
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                                </svg>
+                            </button>
+                            
+                            <button onclick="toggleStream('{{ camera_id }}')" class="p-2 {% if camera.stream_active %}bg-red-600 hover:bg-red-700{% else %}bg-blue-600 hover:bg-blue-700{% endif %} text-white rounded-lg transition-colors duration-200" title="{% if camera.stream_active %}Detener stream{% else %}Iniciar stream{% endif %}">
+                                {% if camera.stream_active %}
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 10a1 1 0 011-1h4a1 1 0 011 1v4a1 1 0 01-1 1h-4a1 1 0 01-1-1v-4z"></path>
+                                </svg>
+                                {% else %}
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.828 14.828a4 4 0 01-5.656 0M9 10h1m4 0h1m-6 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                                </svg>
+                                {% endif %}
+                            </button>
+                            
+                            <button onclick="viewStream('{{ camera_id }}')" class="p-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg transition-colors duration-200" title="Ver stream en nueva ventana">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path>
+                                </svg>
+                            </button>
+                            
+                            {% if camera.last_capture %}
+                            <button onclick="downloadLastCapture('{{ camera_id }}', '{{ camera.name }}', '{{ camera.last_capture }}')" class="p-2 bg-yellow-600 hover:bg-yellow-700 text-white rounded-lg transition-colors duration-200" title="Descargar última captura">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                                </svg>
+                            </button>
+                            {% endif %}
+                        </div>
+                        
+                        <!-- Información del lado derecho -->
+                        <div class="text-xs text-slate-600 text-right">
+                            <div><span class="font-medium">ID:</span> {{ camera_id }}</div>
+                            <div><span class="font-medium">Última:</span> {{ camera.last_capture or 'Nunca' }}</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        
+        <!-- Footer -->
+        <div class="text-center mt-8 text-slate-500">
+            <p>&copy; 2025 WLM - Desarrollado con Flask y OpenCV</p>
+        </div>
+    </div>
+    
+    <script src="{{ url_for('static', filename='js/dashboard.js') }}"></script>
+    
+    <script>
+        let currentExpandedCamera = null;
+        
+        function expandCamera(cameraId, cameraName, streamActive) {
+            currentExpandedCamera = cameraId;
+            
+            // Actualizar el modal
+            document.getElementById('modalCameraName').textContent = cameraName;
+            
+            if (streamActive === 'True') {
+                document.getElementById('modalCameraStream').src = `/stream/${cameraId}`;
+                document.getElementById('modalToggleBtn').className = 'inline-flex items-center px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg transition-colors duration-200';
+                document.getElementById('modalToggleText').textContent = 'Detener Stream';
+            } else {
+                document.getElementById('modalCameraStream').src = '';
+                document.getElementById('modalToggleBtn').className = 'inline-flex items-center px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors duration-200';
+                document.getElementById('modalToggleText').textContent = 'Iniciar Stream';
+            }
+            
+            // Mostrar el modal
+            document.getElementById('cameraModal').classList.remove('hidden');
+            document.body.style.overflow = 'hidden';
+        }
+        
+        function closeCameraModal() {
+            document.getElementById('cameraModal').classList.add('hidden');
+            document.body.style.overflow = 'auto';
+            currentExpandedCamera = null;
+        }
+        
+        function captureCameraFromModal() {
+            if (currentExpandedCamera) {
+                captureCamera(currentExpandedCamera);
+            }
+        }
+        
+        function toggleStreamFromModal() {
+            if (currentExpandedCamera) {
+                toggleStream(currentExpandedCamera);
+                // Cerrar el modal después de la acción
+                setTimeout(() => {
+                    closeCameraModal();
+                }, 500);
+            }
+        }
+        
+        // Cerrar modal con ESC
+        document.addEventListener('keydown', function(event) {
+            if (event.key === 'Escape') {
+                closeCameraModal();
+            }
+        });
+        
+        // Cerrar modal al hacer clic fuera
+        document.getElementById('cameraModal').addEventListener('click', function(event) {
+            if (event.target === this) {
+                closeCameraModal();
+            }
+        });
+    </script>
+</body>
+</html>

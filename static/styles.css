@@ -1,0 +1,265 @@
+/* Estilos personalizados para el Dashboard de Cámaras RTSP */
+
+/* Fuentes personalizadas */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600&display=swap');
+
+/* Variables CSS personalizadas */
+:root {
+  --camera-primary: #0ea5e9;
+  --camera-secondary: #0369a1;
+  --camera-accent: #f59e0b;
+  --camera-success: #10b981;
+  --camera-warning: #f59e0b;
+  --camera-error: #ef4444;
+  --camera-dark: #1e293b;
+  --camera-light: #f8fafc;
+}
+
+/* Estilos base */
+body {
+  font-family: 'Inter', system-ui, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Animaciones personalizadas */
+.camera-card {
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.camera-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+}
+
+/* Estilos para el stream de cámara */
+.camera-stream {
+  aspect-ratio: 16/9;
+  object-fit: cover;
+  transition: all 0.3s ease;
+}
+
+.camera-stream:hover {
+  transform: scale(1.02);
+}
+
+/* Indicadores de estado */
+.status-indicator {
+  position: relative;
+  display: inline-block;
+}
+
+.status-indicator::before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: -8px;
+  transform: translateY(-50%);
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  animation: pulse 2s infinite;
+}
+
+.status-online::before {
+  background-color: var(--camera-success);
+}
+
+.status-offline::before {
+  background-color: #6b7280;
+}
+
+.status-error::before {
+  background-color: var(--camera-error);
+}
+
+.status-streaming::before {
+  background-color: var(--camera-primary);
+}
+
+/* Botones de control */
+.control-btn {
+  position: relative;
+  overflow: hidden;
+  transition: all 0.3s ease;
+}
+
+.control-btn::before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 0;
+  height: 0;
+  background: rgba(255, 255, 255, 0.2);
+  border-radius: 50%;
+  transform: translate(-50%, -50%);
+  transition: width 0.6s, height 0.6s;
+}
+
+.control-btn:hover::before {
+  width: 300px;
+  height: 300px;
+}
+
+.control-btn:active {
+  transform: scale(0.95);
+}
+
+/* Notificaciones */
+.notification {
+  animation: slideInRight 0.3s ease-out;
+}
+
+@keyframes slideInRight {
+  from {
+    transform: translateX(100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+/* Loading spinner */
+.loading-spinner {
+  border: 2px solid #f3f3f3;
+  border-top: 2px solid var(--camera-primary);
+  border-radius: 50%;
+  width: 20px;
+  height: 20px;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+/* Tooltips */
+.tooltip {
+  position: relative;
+}
+
+.tooltip::after {
+  content: attr(data-tooltip);
+  position: absolute;
+  bottom: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  background: var(--camera-dark);
+  color: white;
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 12px;
+  white-space: nowrap;
+  opacity: 0;
+  visibility: hidden;
+  transition: all 0.3s ease;
+  z-index: 1000;
+}
+
+.tooltip:hover::after {
+  opacity: 1;
+  visibility: visible;
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+  .camera-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .control-panel {
+    flex-direction: column;
+  }
+  
+  .control-btn {
+    width: 100%;
+    margin-bottom: 8px;
+  }
+}
+
+@media (max-width: 480px) {
+  .camera-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+  }
+  
+  .status-badges {
+    flex-wrap: wrap;
+  }
+}
+
+/* Modo oscuro (opcional) */
+@media (prefers-color-scheme: dark) {
+  :root {
+    --camera-light: #1e293b;
+    --camera-dark: #f8fafc;
+  }
+  
+  .bg-white {
+    background-color: #1e293b;
+  }
+  
+  .text-slate-800 {
+    color: #f1f5f9;
+  }
+  
+  .text-slate-600 {
+    color: #cbd5e1;
+  }
+  
+  .border-slate-200 {
+    border-color: #334155;
+  }
+}
+
+/* Estilos para el placeholder de stream */
+.stream-placeholder {
+  background: linear-gradient(135deg, #475569 0%, #334155 100%);
+  color: #94a3b8;
+}
+
+.stream-placeholder svg {
+  filter: drop-shadow(0 4px 6px rgba(0, 0, 0, 0.1));
+}
+
+/* Efectos de hover para las tarjetas */
+.camera-card:hover .camera-header {
+  background: linear-gradient(135deg, #f1f5f9 0%, #e2e8f0 100%);
+}
+
+.camera-card:hover .control-panel {
+  background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+}
+
+/* Estilos para botones deshabilitados */
+.control-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.control-btn:disabled:hover {
+  transform: none;
+}
+
+/* Estilos para el footer */
+.footer {
+  background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+  border-top: 1px solid #e2e8f0;
+  padding: 20px 0;
+  margin-top: 40px;
+}
+
+/* Estilos para el header */
+.header-gradient {
+  background: linear-gradient(135deg, #0ea5e9 0%, #0369a1 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
