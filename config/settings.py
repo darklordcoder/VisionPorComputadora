@@ -53,7 +53,7 @@ CAMERAS = {
 WEB_SERVER_CONFIG = {
     'host': '0.0.0.0',
     'port': 5000,
-    'debug': False,
+    'debug': True,
     'capture_dir': str(DIRECTORIES['captures']),
     'log_dir': str(DIRECTORIES['logs'])
 }

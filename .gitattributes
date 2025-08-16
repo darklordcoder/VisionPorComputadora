@@ -1,0 +1,2 @@
+# Normaliza finales de línea para evitar falsos positivos en Windows/Linux
+* text=auto eol=lf
